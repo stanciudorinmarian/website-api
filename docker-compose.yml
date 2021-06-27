@@ -14,7 +14,9 @@ services:
       - ./storage/app/public:/var/www/html/storage/app/public
       - //var/run/docker.sock:/var/run/docker.sock
     ports:
-      - ${NGINX_PORT_EXPORT:-80}:80
+      - ${NGINX_PORT_EXPORT:-81}:80
+    extra_hosts:
+      - laravel.local:127.0.0.1
     depends_on:
       - fpm
 
