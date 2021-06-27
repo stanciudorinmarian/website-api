@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: ./infrastructure/services/nginx/Dockerfile
+    env_file:
+      - .env
+    networks:
+      - website-network
+    volumes:
+      - ./public:/var/www/html/public
+      - ./storage/app/public:/var/www/html/storage/app/public
+      - //var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - ${NGINX_PORT_EXPORT:-80}:80
+    depends_on:
+      - fpm
+
+  fpm:
+    build:
+      context: .
+      dockerfile: ./infrastructure/services/fpm/Dockerfile
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - website-network
+    depends_on:
+      - postgres
+
+  queue:
+    build:
+      context: .
+      dockerfile: ./infrastructure/services/queue/Dockerfile
+    networks:
+      - website-network
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - fpm
+      - postgres
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./infrastructure/services/postgres/Dockerfile
+    env_file:
+      - .env
+    environment:
+      - "POSTGRES_DB=${DB_DATABASE:-follow_up_db}"
+      - "POSTGRES_USER=${DB_USERNAME:-follow_up_user}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD:-follow_up_p@ss}"
+    networks:
+      - website-network
+    volumes:
+      - website-database-volume:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT_EXPORT:-5432}:5432
+
+networks:
+  website-network:
+    driver: overlay
+
+volumes:
+  website-database-volume:
+    external: true
