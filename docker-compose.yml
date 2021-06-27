@@ -48,9 +48,9 @@ services:
     env_file:
       - .env
     environment:
-      - "POSTGRES_DB=${DB_DATABASE:-follow_up_db}"
-      - "POSTGRES_USER=${DB_USERNAME:-follow_up_user}"
-      - "POSTGRES_PASSWORD=${DB_PASSWORD:-follow_up_p@ss}"
+      - "POSTGRES_DB=${DB_DATABASE:-website_db}"
+      - "POSTGRES_USER=${DB_USERNAME:-website_root}"
+      - "POSTGRES_PASSWORD=${DB_PASSWORD:-website_p@ss}"
     networks:
       - website-network
     volumes:
@@ -60,7 +60,7 @@ services:
 
 networks:
   website-network:
-    driver: overlay
+    driver: bridge
 
 volumes:
   website-database-volume:
